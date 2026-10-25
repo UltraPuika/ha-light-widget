@@ -17,6 +17,17 @@ android {
         versionName = "1.0.0"
     }
 
+    // Committed, non-secret debug key: every build (local or CI) has the same signature,
+    // so a newer APK installs over the previous one without losing the widget setup.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true

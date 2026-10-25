@@ -87,12 +87,20 @@ when you want it. The bar is never quietly turned into an "open app" button.
 ### GitHub Actions
 
 `.github/workflows/android.yml` runs the unit tests, builds the debug APK and runs Android lint on
-every push. Download the APK from the run's **Artifacts** (`ha-light-debug-apk`). The free tier
-covers this.
+every push, and publishes the APK as the `apk-latest` GitHub Release (direct download link above).
+The free tier covers this.
 
 ---
 
 ## 4. Install the APK on the phone
+
+**Easiest: download the ready-made APK on your phone.**
+Open <https://github.com/UltraPuika/ha-light-widget/releases/download/apk-latest/ha-light.apk>
+in the phone's browser and open the downloaded file. The link always points to the newest build
+(CI rebuilds it on every push). All builds share one signing key (`app/debug.keystore`), so a new
+version installs over the old one and keeps your settings.
+
+Or build it yourself:
 
 **Option A, USB with adb**
 
@@ -108,10 +116,9 @@ covers this.
 3. Google Play Protect may warn about an unknown developer. Choose *Install anyway*. This
    happens because the APK is debug-signed, not from Play.
 
-Updating: install a newer APK the same way. Settings are kept only if the APK is signed with the
-same key. Debug builds from the same computer share one debug key. Each GitHub Actions run creates
-a new debug key, so an APK from a different machine or CI run requires uninstalling first (and
-setting the widget up again).
+Updating: install a newer APK the same way. Builds from this project (CI or your own) are signed
+with the committed `app/debug.keystore`, so they update each other. An APK signed with any other key
+must be uninstalled first.
 
 ---
 

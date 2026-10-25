@@ -12,3 +12,6 @@
 *.aab
 *.jks
 *.keystore
+
+# Shared debug signing key (not secret) so every CI build can update the previous install
+!app/debug.keystore

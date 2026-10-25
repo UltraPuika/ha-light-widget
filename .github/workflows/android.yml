@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # needed to publish the APK as a GitHub Release
 
 jobs:
   build:
@@ -45,3 +45,15 @@ jobs:
         with:
           name: ha-light-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish APK as GitHub Release (direct download link)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk ha-light.apk
+          gh release delete apk-latest --cleanup-tag --yes || true
+          gh release create apk-latest ha-light.apk \
+            --target "$GITHUB_SHA" \
+            --title "HA Light – latest build" \
+            --notes "Built from ${GITHUB_SHA::7} on ${GITHUB_REF_NAME}. Download ha-light.apk on your Android 12+ phone and open it to install."
