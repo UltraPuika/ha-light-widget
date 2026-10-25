@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Default 2x1; resizable from 2x1 up to about 4x2. Launchers convert the dp limits to cells
+  using their own grid, so the exact maximum can differ slightly between phones.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="com.ultrapuika.halight.config.ConfigActivity"
     android:description="@string/widget_description"
-    android:initialLayout="@layout/widget_medium"
+    android:initialLayout="@layout/widget_1row_small"
+    android:maxResizeHeight="300dp"
+    android:maxResizeWidth="450dp"
     android:minWidth="110dp"
     android:minHeight="40dp"
     android:minResizeWidth="110dp"
     android:minResizeHeight="40dp"
-    android:previewLayout="@layout/widget_medium"
+    android:previewLayout="@layout/widget_1row_small"
     android:resizeMode="horizontal|vertical"
-    android:targetCellWidth="3"
-    android:targetCellHeight="2"
+    android:targetCellWidth="2"
+    android:targetCellHeight="1"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen"
     android:widgetFeatures="reconfigurable" />

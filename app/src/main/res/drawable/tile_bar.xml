@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Track, remembered brightness while off (secondary progress) and current brightness. -->
+<!-- Brightness tile: track, remembered brightness while off (secondary progress), current brightness. -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape android:shape="rectangle">
-            <corners android:radius="8dp" />
-            <solid android:color="@color/widget_track" />
+            <corners android:radius="16dp" />
+            <solid android:color="@color/tile_track" />
         </shape>
     </item>
     <item android:id="@android:id/secondaryProgress">
         <scale android:scaleWidth="100%">
             <shape android:shape="rectangle">
-                <corners android:radius="8dp" />
-                <solid android:color="@color/widget_restore" />
+                <corners android:radius="16dp" />
+                <solid android:color="@color/tile_restore" />
             </shape>
         </scale>
     </item>
     <item android:id="@android:id/progress">
         <scale android:scaleWidth="100%">
             <shape android:shape="rectangle">
-                <corners android:radius="8dp" />
-                <solid android:color="@color/widget_accent" />
+                <corners android:radius="16dp" />
+                <solid android:color="@color/tile_fill" />
             </shape>
         </scale>
     </item>

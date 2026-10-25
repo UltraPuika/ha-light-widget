@@ -27,6 +27,7 @@
     <string name="cd_brighter">Brighter by %1$d percent</string>
     <string name="cd_set_brightness">Set brightness to %1$d percent</string>
     <string name="cd_open_slider">Open brightness slider</string>
+    <string name="cd_open_slider_for">%1$s, tap for brightness slider</string>
 
     <!-- Quick slider -->
     <string name="turn_on">Turn on</string>

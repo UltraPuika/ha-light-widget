@@ -6,11 +6,15 @@
     <color name="widget_text_secondary">@android:color/system_neutral2_700</color>
     <color name="widget_accent">@android:color/system_accent1_600</color>
     <color name="widget_on_accent">@android:color/system_accent1_0</color>
-    <color name="widget_track">@android:color/system_accent1_100</color>
-    <color name="widget_restore">@android:color/system_neutral2_300</color>
     <color name="widget_button_bg">@android:color/system_accent2_100</color>
     <color name="widget_button_fg">@android:color/system_accent2_900</color>
     <color name="widget_ripple">#33000000</color>
     <color name="launcher_bg">#FF1E2A38</color>
     <color name="launcher_fg">#FFFFC94A</color>
+    <!-- Brightness tile -->
+    <color name="tile_track">@android:color/system_neutral2_100</color>
+    <color name="tile_fill">@android:color/system_accent1_200</color>
+    <color name="tile_restore">@android:color/system_neutral2_200</color>
+    <color name="tile_text">@android:color/system_accent1_900</color>
+    <color name="tile_text_secondary">@android:color/system_neutral2_700</color>
 </resources>

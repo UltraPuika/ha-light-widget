@@ -20,13 +20,16 @@ import com.ultrapuika.halight.data.WidgetStore
  * Builds the widget's RemoteViews.
  *
  * App widgets cannot host a draggable SeekBar (RemoteViews has no slider and widgets receive
- * no drag gestures). The brightness bar is therefore a ProgressBar overlaid with equally wide
- * tap targets: tapping anywhere on the bar sets that brightness directly on the home screen.
- * "−"/"+" adjust by 1 % for exact values, and tapping the percentage opens a small popup with a
- * real draggable slider for those who want one.
+ * no drag gestures). The brightness control is therefore a "tile": a ProgressBar filling a
+ * rounded area, covered by equally wide invisible tap zones. Tapping anywhere on the tile sets
+ * that brightness directly on the home screen. On wider sizes "−"/"+" adjust by 1 %, and on
+ * two-row sizes tapping the light name opens a popup with a real draggable slider.
+ *
+ * Sizes (the launcher picks the largest layout that fits): 2x1/3x1, 4x1, 2x2, 3x2, 4x2.
  */
 object WidgetRenderer {
     private const val DISABLED_ALPHA = 0.38f
+    private const val STEP = 1
 
     private val SEGMENT_IDS = intArrayOf(
         R.id.seg_0, R.id.seg_1, R.id.seg_2, R.id.seg_3, R.id.seg_4,
@@ -35,11 +38,14 @@ object WidgetRenderer {
         R.id.seg_15, R.id.seg_16, R.id.seg_17, R.id.seg_18, R.id.seg_19,
     )
 
-    private data class Variant(val layout: Int, val segments: Int, val step: Int)
+    /** [header]: has the separate name/status row; [steps]: has −/+ buttons. */
+    private data class Variant(val layout: Int, val segments: Int, val steps: Boolean, val header: Boolean)
 
-    private val SMALL = Variant(R.layout.widget_small, segments = 0, step = 10)
-    private val MEDIUM = Variant(R.layout.widget_medium, segments = 10, step = 1)
-    private val LARGE = Variant(R.layout.widget_large, segments = 20, step = 1)
+    private val ONE_ROW_SMALL = Variant(R.layout.widget_1row_small, segments = 10, steps = false, header = false)
+    private val ONE_ROW_LARGE = Variant(R.layout.widget_1row_large, segments = 20, steps = true, header = false)
+    private val TWO_ROW_SMALL = Variant(R.layout.widget_2row_small, segments = 10, steps = false, header = true)
+    private val TWO_ROW_MEDIUM = Variant(R.layout.widget_2row_medium, segments = 10, steps = true, header = true)
+    private val TWO_ROW_LARGE = Variant(R.layout.widget_2row_large, segments = 20, steps = true, header = true)
 
     fun render(context: Context, widgetId: Int) {
         AppWidgetManager.getInstance(context).updateAppWidget(widgetId, build(context, widgetId))
@@ -49,12 +55,15 @@ object WidgetRenderer {
         val config = WidgetStore.config(context, widgetId)
         val credentialsOk = CredentialStore(context).isConfigured
         val model = WidgetStore.model(context, widgetId)
-        // The launcher picks the largest layout that fits the current widget size.
+        fun v(variant: Variant) = views(context, widgetId, variant, config, credentialsOk, model)
+        // Keys are minimum sizes in dp; the launcher picks the largest layout that fits.
         return RemoteViews(
             mapOf(
-                SizeF(110f, 40f) to views(context, widgetId, SMALL, config, credentialsOk, model),
-                SizeF(180f, 100f) to views(context, widgetId, MEDIUM, config, credentialsOk, model),
-                SizeF(250f, 100f) to views(context, widgetId, LARGE, config, credentialsOk, model),
+                SizeF(110f, 40f) to v(ONE_ROW_SMALL),
+                SizeF(250f, 40f) to v(ONE_ROW_LARGE),
+                SizeF(110f, 100f) to v(TWO_ROW_SMALL),
+                SizeF(180f, 100f) to v(TWO_ROW_MEDIUM),
+                SizeF(250f, 100f) to v(TWO_ROW_LARGE),
             )
         )
     }
@@ -73,9 +82,10 @@ object WidgetRenderer {
             rv.setTextViewText(R.id.name, context.getString(R.string.widget_not_configured_title))
             rv.setTextViewText(R.id.status, context.getString(R.string.widget_tap_to_set_up))
             rv.setTextViewText(R.id.pct, context.getString(R.string.pct_unknown))
-            rv.setOnClickPendingIntent(R.id.header, configIntent(context, widgetId))
-            setControls(rv, variant, widgetId, context, power = false, brightness = false, isOn = false)
             rv.setProgressBar(R.id.progress, 100, 0, false)
+            val setUp = configIntent(context, widgetId)
+            if (variant.header) rv.setOnClickPendingIntent(R.id.header, setUp)
+            setControls(rv, variant, widgetId, context, power = false, brightness = false, isOn = false, tileFallback = setUp)
             return rv
         }
 
@@ -85,17 +95,27 @@ object WidgetRenderer {
         val dimmable = controls && d.supportsBrightness
 
         rv.setTextViewText(R.id.name, config.displayName)
-        rv.setTextViewText(R.id.pct, if (known && d.available) context.getString(R.string.pct_format, d.pct) else context.getString(R.string.pct_unknown))
+        rv.setTextViewText(R.id.pct, if (controls) context.getString(R.string.pct_format, d.pct) else context.getString(R.string.pct_unknown))
         rv.setTextViewText(R.id.status, statusText(context, model, d))
         rv.setProgressBar(R.id.progress, 100, if (dimmable) d.pct else 0, false)
         rv.setInt(R.id.progress, "setSecondaryProgress", if (dimmable && !d.isOn) d.lastOnPct else 0)
 
-        val headerIntent = if (model.status == WidgetModel.Status.AUTH_ERROR) configIntent(context, widgetId)
-        else broadcast(context, widgetId, WidgetActionReceiver.ACTION_REFRESH, 0)
-        rv.setOnClickPendingIntent(R.id.header, headerIntent)
-        rv.setContentDescription(R.id.header, context.getString(R.string.cd_refresh, config.displayName))
+        val refresh = broadcast(context, widgetId, WidgetActionReceiver.ACTION_REFRESH, 0)
+        val attention = when {
+            model.status == WidgetModel.Status.AUTH_ERROR -> configIntent(context, widgetId)
+            model.status == WidgetModel.Status.ERROR || !known -> refresh
+            else -> null
+        }
+        if (variant.header) {
+            val headerIntent = attention ?: if (dimmable) sliderIntent(context, widgetId) else refresh
+            rv.setOnClickPendingIntent(R.id.header, headerIntent)
+            rv.setContentDescription(
+                R.id.header,
+                context.getString(if (attention == null && dimmable) R.string.cd_open_slider_for else R.string.cd_refresh, config.displayName),
+            )
+        }
 
-        setControls(rv, variant, widgetId, context, power = controls, brightness = dimmable, isOn = d.isOn)
+        setControls(rv, variant, widgetId, context, power = controls, brightness = dimmable, isOn = d.isOn, tileFallback = attention ?: refresh)
         return rv
     }
 
@@ -110,6 +130,10 @@ object WidgetRenderer {
         else -> context.getString(R.string.status_off_restore, d.lastOnPct)
     }
 
+    /**
+     * [tileFallback] is what a tap on the tile does when brightness can't be set (set up, retry,
+     * refresh) — on one-row sizes the tile is the only large tap target besides the power button.
+     */
     private fun setControls(
         rv: RemoteViews,
         variant: Variant,
@@ -118,28 +142,26 @@ object WidgetRenderer {
         power: Boolean,
         brightness: Boolean,
         isOn: Boolean,
+        tileFallback: PendingIntent,
     ) {
         rv.setImageViewResource(R.id.power, if (isOn) R.drawable.ic_power_on else R.drawable.ic_power_off)
         rv.setInt(R.id.power, "setBackgroundResource", if (isOn) R.drawable.power_bg_on else R.drawable.power_bg_off)
         rv.setContentDescription(R.id.power, context.getString(if (isOn) R.string.cd_turn_off else R.string.cd_turn_on))
         enable(rv, R.id.power, power, broadcast(context, widgetId, WidgetActionReceiver.ACTION_TOGGLE, 0))
 
-        enable(rv, R.id.minus, brightness, broadcast(context, widgetId, WidgetActionReceiver.ACTION_STEP, -variant.step))
-        enable(rv, R.id.plus, brightness, broadcast(context, widgetId, WidgetActionReceiver.ACTION_STEP, variant.step))
-        rv.setContentDescription(R.id.minus, context.getString(R.string.cd_dimmer, variant.step))
-        rv.setContentDescription(R.id.plus, context.getString(R.string.cd_brighter, variant.step))
+        if (variant.steps) {
+            enable(rv, R.id.minus, brightness, broadcast(context, widgetId, WidgetActionReceiver.ACTION_STEP, -STEP))
+            enable(rv, R.id.plus, brightness, broadcast(context, widgetId, WidgetActionReceiver.ACTION_STEP, STEP))
+            rv.setContentDescription(R.id.minus, context.getString(R.string.cd_dimmer, STEP))
+            rv.setContentDescription(R.id.plus, context.getString(R.string.cd_brighter, STEP))
+        }
 
-        enable(rv, R.id.pct, brightness, if (brightness) sliderIntent(context, widgetId) else null)
-
-        if (variant.segments > 0) {
-            rv.setFloat(R.id.progress, "setAlpha", if (brightness) 1f else DISABLED_ALPHA)
-            for (i in 0 until variant.segments) {
-                val pct = Brightness.segmentToPct(i, variant.segments)
-                val id = SEGMENT_IDS[i]
-                rv.setOnClickPendingIntent(id, if (brightness) broadcast(context, widgetId, WidgetActionReceiver.ACTION_SET, pct) else null)
-                rv.setBoolean(id, "setEnabled", brightness)
-                rv.setContentDescription(id, context.getString(R.string.cd_set_brightness, pct))
-            }
+        rv.setFloat(R.id.progress, "setAlpha", if (brightness) 1f else DISABLED_ALPHA)
+        for (i in 0 until variant.segments) {
+            val pct = Brightness.segmentToPct(i, variant.segments)
+            val id = SEGMENT_IDS[i]
+            rv.setOnClickPendingIntent(id, if (brightness) broadcast(context, widgetId, WidgetActionReceiver.ACTION_SET, pct) else tileFallback)
+            rv.setContentDescription(id, context.getString(R.string.cd_set_brightness, pct))
         }
     }
 

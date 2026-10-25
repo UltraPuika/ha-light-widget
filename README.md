@@ -5,11 +5,17 @@ Home Assistant light** without opening any app. Kotlin, no AndroidX, no third-pa
 analytics. Only the Kotlin standard library and kotlinx-coroutines.
 
 ```
+2x1 (default)              4x1
+┌──────────────────────┐   ┌─────────────────────────────────────────┐
+│ (⏻) ▐█████ Desk ░░░░▌│   │ (⏻) ▐██████████ Desk ░░░░░░░░░▌ (−) (+) │
+│     ▐█████ 65% On ░░▌│   │     ▐██████████ 65% On ░░░░░░░▌         │
+└──────────────────────┘   └─────────────────────────────────────────┘
+
+3x2 / 4x2
 ┌──────────────────────────────────────────┐
-│ Living room                          (⏻) │   name + state (tap = refresh), power button
+│ Living room                          (⏻) │   tap the name = precise drag slider popup
 │ On                                       │
-│ 65%                            (−)  (+)  │   tap % = popup slider, −/+ = 1 % steps
-│ [██████████████████░░░░░░░░░░░░░░░░░░░]  │   tap anywhere on the bar = set brightness
+│ ▐████████████████ 65% ░░░░░░░▌ (−)  (+)  │   tap anywhere on the tile = set brightness
 └──────────────────────────────────────────┘
 ```
 
@@ -29,12 +35,12 @@ The widget implements the closest working alternative. All of it runs on the hom
 
 | Control | Behavior |
 |---|---|
-| **Brightness bar** (medium and large layouts) | A `ProgressBar` covered by 10 (medium) or 20 (large) invisible tap zones. Tapping a spot on the bar sets that brightness (10 %/20 %/…/100 %, or 5 % steps on the large layout). Fill = current brightness. |
-| **− / +** | ±1 % (medium/large) for exact values, ±10 % on the compact 1-row layout. Rapid taps are combined into one request. |
+| **Brightness tile** (every size) | A large rounded `ProgressBar` covered by invisible tap zones: 10 zones (10 % steps) on 2-3 cell wide sizes, 20 zones (5 % steps) on 4 cell wide sizes. Tap a spot to set that brightness. The fill shows the current brightness, with the name and percentage printed on the tile. |
+| **− / +** | ±1 % for exact values, on 4x1, 3x2 and 4x2. Rapid taps are combined into one request. |
 | **⏻ power** | Turns the light off, keeping the last brightness. Turning it on restores that brightness (`brightness_pct` = remembered value). While off, the bar shows the brightness that will be restored, in grey. |
-| **Tap the percentage** | Opens a small popup over the home screen with a **real draggable slider** (1–100 %). The light follows your finger (throttled), and the final value is sent when you lift your finger. |
+| **Tap the light name** (2-row sizes) | Opens a small popup over the home screen with a **real draggable slider** (1–100 %). It refreshes the state when it opens. The light follows your finger (throttled), and the final value is sent when you lift your finger. |
 
-So 1 %–100 % is reachable directly on the widget (bar + ±1 %), and the popup gives true dragging
+So 1 %–100 % is reachable directly on the widget at 4x1, 3x2 and 4x2 (tile + ±1 %), and the popup gives true dragging
 when you want it. The bar is never quietly turned into an "open app" button.
 
 ### Request flood protection and stale responses
@@ -140,8 +146,12 @@ must be uninstalled first.
      **preview** (state, brightness, dimmable or not).
    * **Name shown on the widget** and **Background refresh** interval (off / 15 / 30 / 60 / 180 min).
    * **Save**.
-3. Resize the widget as you like. The layout switches between **compact** (1 row: −, +, ⏻ and
-   a thin bar), **medium** (10-zone bar) and **large** (20-zone bar).
+3. The widget starts at **2x1**. Long-press it and drag the handles to resize, anywhere from
+   **2x1 up to 4x2**:
+   * **2x1, 3x1:** power button + brightness tile (10 % steps)
+   * **4x1:** + −/+ (1 % steps), tile with 5 % steps
+   * **2x2:** name/status row + power, large tile
+   * **3x2, 4x2:** + −/+, and tapping the name opens the drag slider popup
 
 Change settings later by long-pressing the widget → **Widget settings / pencil icon** (Android 12+
 "reconfigure"), or by opening the **HA Light** app from the app drawer (connection and all placed
@@ -184,7 +194,7 @@ widgets). The URL and token are shared by all widgets. Light, name and refresh i
 |---|---|
 | Widget added / reconfigured / settings saved | Immediate state read for all widgets |
 | Any tap (bar, −/+, ⏻, popup) | Optimistic update, debounced command, read-back after ~1.2 s (and again after the settle window if needed) |
-| Tap on the light name | Manual refresh |
+| Tap the light name (2-row sizes) / any tap | Fresh state read (the popup refreshes when opened). On errors, tapping the tile retries |
 | Background refresh | `JobScheduler` periodic job with the shortest interval chosen (min 15 min, network required, persisted across reboots, batched by Android/Doze) |
 | Network error | One-off `JobScheduler` job that refreshes as soon as a network is available, with exponential backoff |
 | Phone reboot / launcher restart | `onUpdate` re-renders the cached state and refreshes |
@@ -193,7 +203,7 @@ There is no permanently running service. Commands run inside the widget-tap broa
 (`goAsync`, ≤ 9 s) and background work uses `JobScheduler`.
 
 **Limitation (honest):** changes made *outside* the widget (wall switch, automation, HA app) are
-shown at the next background refresh, your next tap, or when you tap the light name. Showing them
+shown at the next background refresh, your next tap, or when you open the popup by tapping the light name. Showing them
 instantly would require a permanent WebSocket connection, and therefore a foreground service with
 a permanent notification and extra battery use. That is deliberately not done. Android may also
 delay periodic jobs in Doze or for apps in a low standby bucket.
@@ -240,7 +250,7 @@ delay periodic jobs in Doze or for apps in a low standby bucket.
   jobs aggressively. See dontkillmyapp.com.
 * **Widget not in the widget list after install:** open the app once, or restart the launcher/phone.
 * **Layout doesn't change when resizing:** a few third-party launchers ignore Android 12 responsive
-  layouts and always show the medium layout. All controls keep working.
+  layouts and always show the 2x1 layout. All controls keep working.
 * **Popup slider appears over the home screen:** this is intended. It closes when you tap
   *Done*, tap outside it, or press Back.
 
@@ -261,7 +271,7 @@ core/   Pure Kotlin/JVM (no Android) – unit-tested
 app/    Android
   widget/LightWidgetProvider     AppWidgetProvider (system broadcasts)
   widget/WidgetActionReceiver    Non-exported receiver for widget taps (goAsync)
-  widget/WidgetRenderer          Responsive RemoteViews (compact / 10-zone / 20-zone)
+  widget/WidgetRenderer          Responsive RemoteViews (2x1/3x1, 4x1, 2x2, 3x2, 4x2)
   sync/LightController           Glue: actions → commands → read-back → render
   sync/RefreshJobs, RefreshJobService   JobScheduler periodic + retry-when-online
   data/CredentialStore           Keystore AES-GCM token storage
@@ -300,6 +310,6 @@ and background refresh under your vendor's battery management. Suggested checkli
 2. Tap the bar at the left, middle and right → ~10 %, ~50 %, 100 %. Use ±1 % to reach an exact value.
 3. ⏻ off → widget shows *Off · restores N %*. ⏻ on → light returns to N %.
 4. Airplane mode → tap → *Offline*. Disable airplane mode → widget recovers by itself within ~30 s–1 min.
-5. Change the light from the HA app → tap the light name → widget updates.
-6. Resize between 2×1, 3×2 and 4×2 → compact / medium / large layouts.
+5. Change the light from the HA app → tap the light name (2-row size) or wait for the background refresh → widget updates.
+6. Resize through 2x1, 4x1, 2x2, 3x2 and 4x2 → each shows its layout, and the widget can't grow beyond about 4x2.
 7. Revoke the token in HA → next refresh shows *Token rejected · tap to fix*.
