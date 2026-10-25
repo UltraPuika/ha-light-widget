@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Certificate validation is always on. Cleartext (http://) is permitted at the platform level
+  because Android cannot whitelist IP ranges here; the app itself only allows http:// for
+  local-network and Tailscale addresses (see HaUrl.isPrivateHost) and requires https:// for
+  everything else. User-installed CAs are trusted so a self-hosted CA for Home Assistant works.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

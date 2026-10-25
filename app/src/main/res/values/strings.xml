@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HA Light</string>
+    <string name="widget_description">Brightness and on/off for one Home Assistant light</string>
+
+    <!-- Widget -->
+    <string name="widget_not_configured_title">HA Light</string>
+    <string name="widget_tap_to_set_up">Tap to set up</string>
+    <string name="pct_unknown">–</string>
+    <string name="pct_format">%1$d%%</string>
+    <string name="minus">−</string>
+    <string name="plus">+</string>
+    <string name="status_loading">Loading…</string>
+    <string name="status_unavailable">Unavailable in Home Assistant</string>
+    <string name="status_error">Offline · tap to retry</string>
+    <string name="status_auth_error">Token rejected · tap to fix</string>
+    <string name="status_on">On</string>
+    <string name="status_off_restore">Off · restores %1$d%%</string>
+    <string name="status_on_sending">On · sending…</string>
+    <string name="status_off_sending">Off · sending…</string>
+    <string name="status_on_no_dim">On · no dimming</string>
+    <string name="status_off_no_dim">Off · no dimming</string>
+    <string name="cd_refresh">%1$s, tap to refresh</string>
+    <string name="cd_turn_on">Turn light on</string>
+    <string name="cd_turn_off">Turn light off</string>
+    <string name="cd_dimmer">Dimmer by %1$d percent</string>
+    <string name="cd_brighter">Brighter by %1$d percent</string>
+    <string name="cd_set_brightness">Set brightness to %1$d percent</string>
+    <string name="cd_open_slider">Open brightness slider</string>
+
+    <!-- Quick slider -->
+    <string name="turn_on">Turn on</string>
+    <string name="turn_off">Turn off</string>
+    <string name="done">Done</string>
+    <string name="slider_off_hint">Off · drag to turn on</string>
+    <string name="no_brightness_support">This light does not support brightness (on/off only)</string>
+
+    <!-- Configuration -->
+    <string name="config_title">HA Light setup</string>
+    <string name="section_connection">Home Assistant connection</string>
+    <string name="url_label">Home Assistant URL</string>
+    <string name="url_hint">http://192.168.1.10:8123</string>
+    <string name="url_help">Local address (http://192.168.x.x:8123, http://homeassistant.local:8123), Tailscale address (http://100.x.y.z:8123 or https://name.tailnet.ts.net) or your own https:// address. Plain http:// is only accepted for local and Tailscale addresses.</string>
+    <string name="token_label">Long-lived access token</string>
+    <string name="token_hint">Paste token</string>
+    <string name="token_hint_stored">Stored securely · leave empty to keep</string>
+    <string name="token_help">Create it in Home Assistant: your profile → Security → Long-lived access tokens. It is encrypted with the Android Keystore and never shown again.</string>
+    <string name="tailscale_note">Using Tailscale? The Tailscale app must be connected on this phone (and Home Assistant\'s machine must be in the same tailnet) for the widget to reach it.</string>
+    <string name="test_connection">Test connection</string>
+    <string name="testing">Testing…</string>
+    <string name="connection_ok">Connected to Home Assistant (HTTPS).</string>
+    <string name="connection_ok_http">Connected to Home Assistant. Note: plain HTTP, which is only acceptable on your LAN or over Tailscale.</string>
+    <string name="token_missing">Enter an access token.</string>
+    <string name="error_unauthorized">Home Assistant rejected the token. Create a new long-lived access token and paste it here.</string>
+    <string name="error_tls">HTTPS certificate is not trusted. Use a valid certificate (e.g. Tailscale HTTPS or Let\'s Encrypt), install your CA on the phone, or use the local http:// address.</string>
+    <string name="error_unreachable">%1$s</string>
+
+    <string name="section_widget">Widget</string>
+    <string name="widget_label">Widget %1$d · %2$s</string>
+    <string name="no_widget_hint">To add the widget: long-press the home screen → Widgets → HA Light. You will be asked to pick a light.</string>
+
+    <string name="section_light">Light</string>
+    <string name="load_lights">Load lights</string>
+    <string name="loading_lights">Loading lights…</string>
+    <string name="lights_found">Connected. %1$d lights found.</string>
+    <string name="no_lights">No light entities found.</string>
+    <string name="filter_hint">Search lights</string>
+    <string name="display_name">Name shown on the widget</string>
+    <string name="refresh_label">Background refresh</string>
+    <string name="refresh_help">Changes made outside the widget (switches, automations, the HA app) appear after the next refresh, or immediately when you tap the light name.</string>
+    <string name="refresh_manual">Off (refresh on tap only)</string>
+    <string name="refresh_15">Every 15 minutes</string>
+    <string name="refresh_30">Every 30 minutes</string>
+    <string name="refresh_60">Every hour</string>
+    <string name="refresh_180">Every 3 hours</string>
+    <string name="preview_format">%1$s\n%2$s\n%3$s</string>
+    <string name="preview_on_pct">On · %1$d%%</string>
+    <string name="preview_off">Off</string>
+    <string name="preview_unknown">State unknown</string>
+    <string name="preview_dimmable">Supports brightness</string>
+    <string name="select_light_first">Load and select a light first.</string>
+
+    <string name="save">Save</string>
+    <string name="save_connection">Save connection</string>
+    <string name="saved">Saved. Widgets are refreshing.</string>
+    <string name="security_note">No analytics, ads or tracking. The app talks only to your Home Assistant.</string>
+</resources>

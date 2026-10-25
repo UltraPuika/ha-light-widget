@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/config_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="12dp"
+            android:text="@string/config_title"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
+            android:textStyle="bold" />
+
+        <!-- Connection -->
+        <TextView
+            style="@style/SectionTitle"
+            android:text="@string/section_connection" />
+
+        <TextView
+            style="@style/FieldLabel"
+            android:labelFor="@+id/url_input"
+            android:text="@string/url_label" />
+
+        <EditText
+            android:id="@+id/url_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/url_hint"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:maxLines="1" />
+
+        <TextView
+            style="@style/Help"
+            android:text="@string/url_help" />
+
+        <TextView
+            style="@style/FieldLabel"
+            android:labelFor="@+id/token_input"
+            android:text="@string/token_label" />
+
+        <EditText
+            android:id="@+id/token_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/token_hint"
+            android:importantForAutofill="no"
+            android:inputType="textPassword"
+            android:maxLines="1" />
+
+        <TextView
+            style="@style/Help"
+            android:text="@string/token_help" />
+
+        <TextView
+            style="@style/Help"
+            android:text="@string/tailscale_note" />
+
+        <Button
+            android:id="@+id/test_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/test_connection" />
+
+        <TextView
+            android:id="@+id/connection_status"
+            style="@style/Status" />
+
+        <!-- Which widget (only when opened from the app icon) -->
+        <LinearLayout
+            android:id="@+id/widget_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/SectionTitle"
+                android:text="@string/section_widget" />
+
+            <Spinner
+                android:id="@+id/widget_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/no_widget_hint"
+            style="@style/Help"
+            android:layout_marginTop="16dp"
+            android:text="@string/no_widget_hint"
+            android:visibility="gone" />
+
+        <!-- Light -->
+        <LinearLayout
+            android:id="@+id/light_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/SectionTitle"
+                android:text="@string/section_light" />
+
+            <Button
+                android:id="@+id/load_lights_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/load_lights" />
+
+            <EditText
+                android:id="@+id/light_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/filter_hint"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:maxLines="1" />
+
+            <Spinner
+                android:id="@+id/light_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                android:id="@+id/light_preview"
+                style="@style/Status" />
+
+            <TextView
+                style="@style/FieldLabel"
+                android:labelFor="@+id/name_input"
+                android:text="@string/display_name" />
+
+            <EditText
+                android:id="@+id/name_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:importantForAutofill="no"
+                android:inputType="textCapSentences"
+                android:maxLines="1" />
+
+            <TextView
+                style="@style/FieldLabel"
+                android:text="@string/refresh_label" />
+
+            <Spinner
+                android:id="@+id/refresh_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                style="@style/Help"
+                android:text="@string/refresh_help" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/save" />
+
+        <TextView
+            android:id="@+id/save_status"
+            style="@style/Status" />
+
+        <TextView
+            style="@style/Help"
+            android:layout_marginTop="24dp"
+            android:text="@string/security_note" />
+    </LinearLayout>
+</ScrollView>
